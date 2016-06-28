@@ -35,7 +35,7 @@
 
 
 // Define the Waspmote default ID
-char node_id[] = "Tom_Environment_2";
+char node_id[] = "Tom_Environment_1";
 
 // Define the authentication key
 char key_access[] = "85045124";
@@ -75,13 +75,7 @@ uint8_t ATWR[8] = {
 // 3 - XBee ZB
 // 4 - No XBee
 // 5 - 900 MHz Intl
-// Test // int XBEE_type = 5;
-
-// Declare the ZigBee_type, when needed
-// 0 - Coordinator API
-// 1 - Router API
-// 2 - other
-// Test //int ZIGBEE_type = 0;
+int XBEE_type = 5;
 
 // Declare the LoRa_type
 boolean LoRa_type = true;
@@ -136,18 +130,17 @@ void setup()
   // (baudrate at 115200  and API mode enabled)
   ///////////////////////////////// 
   // Note: Only valid for SOCKET 0
-  // Test //xbee802.ON();
- // Test // Utils.setMuxSocket0();
- // Test // delay(500);
- // Test // beginSerial(9600, 0);
-  // Test //printString("+++", 0);
-  // Test //delay(2000);
-  // Test //printString("ATBD7,AP2,WR,CN\r\n", 0);
-  // Test //delay(200);
+  xbee802.ON();
+  Utils.setMuxSocket0();
+  delay(500);
+  beginSerial(9600, 0);
+  printString("+++", 0);
+  delay(2000);
+  printString("ATBD7,AP2,WR,CN\r\n", 0);
+  delay(200);
 
   // 4.1 In case of Zigbee modules:
-  // Test //
- /*for (uint8_t i = 0; i < 9; i++)
+  for (uint8_t i = 0; i < 9; i++)
   {
     printByte(ATBD7[i], 0);	
   }
@@ -166,8 +159,7 @@ void setup()
   }
   delay(150);  
   closeSerial(0); 
-  // Test //
-*/
+
 
   /////////////////////////////////
   // 5. LEDs management 
@@ -179,31 +171,32 @@ void setup()
     Utils.blinkLEDs(100);
   }
 
-  /////////////////////////////////
-  // 6. Get the XBee MAC address
-  /////////////////////////////////  
- /* xbee802.OFF();
-  delay(1000);  
-  xbee802.ON();
-  delay(1000);  
-  xbee802.flush();
-
-  // Get the XBee MAC address
-  int counter = 0;
-  while((xbee802.getOwnMac() != 0) && (counter < 12))
-  {   
-    xbee802.getOwnMac();
-    counter++;
-  }
-
-  // convert mac address from array to string
-  Utils.hex2str(xbee802.sourceMacHigh, macHigh, 4);
-  Utils.hex2str(xbee802.sourceMacLow,  macLow,  4);  
+//  /////////////////////////////////
+//  // 6. Get the XBee MAC address
+//  /////////////////////////////////  
+//  xbee802.OFF();
+//  delay(1000);  
+//  xbee802.ON();
+//  delay(1000);  
+//  xbee802.flush();
+//
+//  // Get the XBee MAC address
+//  int counter = 0;
+//  while((xbee802.getOwnMac() != 0) && (counter < 12))
+//  {   
+//    xbee802.getOwnMac();
+//    counter++;
+//  }
+//
+//  // convert mac address from array to string
+//  Utils.hex2str(xbee802.sourceMacHigh, macHigh, 4);
+//  Utils.hex2str(xbee802.sourceMacLow,  macLow,  4);  
+//
 
   /////////////////////////////////
   // 7. Get the XBee firmware version
   /////////////////////////////////   
-  counter = 0; 
+  int counter = 0; 
   while((xbee802.getSoftVersion() != 0) && (counter < 12))
   {
     xbee802.getSoftVersion();
@@ -214,40 +207,6 @@ void setup()
   if( (xbee802.softVersion[0] < 0x20) && (xbee802.softVersion[1] > 0x80) )
   {
     XBEE_type = 0; // 802.15.4
-  }
-  else if( (xbee802.softVersion[0] < 0x20) && (xbee802.softVersion[0] > 0x00) )
-  {
-    XBEE_type = 1; // 868Mhz - 900Mhz
-  }
-  /*else if(  (xbee802.softVersion[3] > 0x60) && (xbee802.softVersion[3] < 0x70))
-  {
-    XBEE_type = 5; // 868Mhz - 900Mhz
-  }
-  else if( xbee802.softVersion[0] >= 0x80 )
-  {
-    XBEE_type = 2; // DM
-  }
-  else if( (xbee802.softVersion[0] >= 0x20) && (xbee802.softVersion[0] < 0x80) )
-  {
-    XBEE_type = 3; //ZB
-
-    switch (xbee802.softVersion[0])
-    {
-    case 0x21:
-      ZIGBEE_type = 0; // coordinator API 
-      break;
-    case 0x23:
-      ZIGBEE_type = 1; // router API 
-      break;
-    default:
-      ZIGBEE_type = 2; // other 
-      break;
-    }
-
-  }
-  else if (xbee802.softVersion[0] == 0x00 && xbee802.softVersion[1] >= 0x02)
-  {
-    XBEE_type = 4;
   }
   else
   {
@@ -274,74 +233,8 @@ void setup()
   /////////////////////////////////     
   USB.println(F("\nStarting program by default"));
 
-  if( LoRa_type == false )
+  if( LoRa_type == true )
   {
-    if( XBEE_type < 4 )
-    {
-      USB.println(F("XBee module is plugged on socket 0:"));
-      USB.print(F("   MAC address:\t\t"));
-      USB.print(macHigh);
-      USB.println(macLow);
-      USB.print(F("   Firmware version:\t"));
-      USB.print(xbee802.softVersion[0],HEX);
-      USB.println(xbee802.softVersion[1],HEX);
-    }
-
-    if ( XBEE_type == 4 )
-    {
-      USB.println(F("XBee module is plugged on socket 0:"));
-      USB.print(F("   MAC address:\t\t"));
-      USB.print(macHigh);
-      USB.println(macLow);
-      USB.print(F("   Firmware version:\t"));
-      USB.printHex(xbee802.softVersion[0]);
-      USB.printHex(xbee802.softVersion[1]);
-      USB.printHex(xbee802.softVersion[2]);
-      USB.printHex(xbee802.softVersion[3]);
-      USB.println();     
-    }
-
-
-    USB.print(F("   XBee type: "));
-    switch(XBEE_type)
-    {
-    case 0:  
-      USB.print(F("802.15.4"));
-      break;
-    case 1:  
-      USB.print(F("900/868"));
-      break;
-    case 2:  
-      USB.print(F("DigiMesh"));
-      break;
-    case 3:  
-      USB.print(F("ZigBee - "));
-      switch(ZIGBEE_type)
-      {
-      case 0:  
-        USB.print(F("Coordinator ZigBee plugged on Waspmote. Coordinators are meant for Gateway/Meshlium. Plug a Router/ED ZigBee in Waspmote instead."));
-        break;
-      case 1:  
-        USB.print(F("Router"));
-        break;
-      case 2:  
-        USB.print(F("Other"));
-        break;
-      }
-      break;
-    case 4:  
-      USB.print(F("900 International"));
-      break;
-    case 5:  
-      USB.print(F("No XBee plugged on SOCKET 0"));
-      break;
-    }
-  }
-  else
-  {  
-  
-  // Test //
-*/  
     // LoRa_type is TRUE
     USB.println(F("SX1272 module is plugged on socket 0:"));
     if( out1 == 0 )
@@ -373,163 +266,17 @@ void setup()
       {
         USB.println(F("     Node Address: 3"));
       }
- 
- 
+    }
+  }
+
 
   USB.println();
   USB.println(F("==============================="));
 
-// Test //
-/*
-  // 8.1 case ZB router, Start association process
-  if( LoRa_type == false )
-  {
-    if ((XBEE_type == 3) && (ZIGBEE_type > 0 )) 
-    { 
 
-      USB.println(F("starting ZigBee association process:"));
-      USB.println(F("note: this process disassociates the module from previous ZigBee network"));
-      // turn XBee on 
-      xbeeZB.ON();
-      delay(1000);
-
-      /////////////////////////////////////
-      // 8.2 Dissociation process
-      /////////////////////////////////////
-
-      // 8.2.1. set PANID: 0x0000000000000000 
-      xbeeZB.setPAN(PANID);
-
-      // 8.2.2. check AT command flag
-      if( xbeeZB.error_AT == 0 ) 
-      {
-        USB.println(F("   PAN ID set to zero"));
-      }
-      else 
-      {
-        USB.println(F("Error while setting PAN ID")); 
-      }
-
-      // 8.2.3. set all possible channels to scan 
-      // channels from 0x0B to 0x18 (0x19 and 0x1A are excluded)
-      /* Range:[0x0 to 0x3FFF]
-       * Channels are specified as a bitmap where depending on 
-       * the bit a channel is selected --> Bit (Channel): 
-       *  0 (0x0B)  4 (0x0F)  8 (0x13)   12 (0x17)
-       *  1 (0x0C)  5 (0x10)  9 (0x14)   13 (0x18)
-       *  2 (0x0D)  6 (0x11)  10 (0x15)  
-       *  3 (0x0E)  7 (0x12)	 11 (0x16)    
-       // Test //
-      xbeeZB.setScanningChannels(0x3F, 0xFF);
-
-      // 8.2.4. check AT command flag  
-      if( xbeeZB.error_AT == 0 )
-      {
-        USB.println(F("   scanning channel range set OK"));
-      }
-      else 
-      {
-        USB.println(F("Error while setting scanning channel range")); 
-      }
-
-      // 8.2.5. set channel verification JV=1 in order to make the 
-      // XBee module to scan new coordinator
-      xbeeZB.setChannelVerification(1);
-
-      // 8.2.6. check AT command flag    
-      if( xbeeZB.error_AT == 0 )
-      {
-        USB.println(F("   coordinator searching process enabled (channel verification = JV = 1)"));
-      }
-      else 
-      {
-        USB.println(F("Error while enabling coordinator searching process")); 
-      }
-
-      // 8.2.7. write values to XBee memory
-      xbeeZB.writeValues();
-
-      // 8.2.8 reboot XBee module
-      xbeeZB.OFF();
-      delay(3000); 
-      xbeeZB.ON();
-
-      delay(3000);
-
-      /////////////////////////////////////
-      // 8.3. Wait for Association 
-      /////////////////////////////////////
-
-      // 8.3.1. wait for association indication
-      xbeeZB.getAssociationIndication();
-
-      while( xbeeZB.associationIndication != 0 )
-      { 
-        delay(2000);
-
-        // get operating 64-b PAN ID
-        xbeeZB.getOperating64PAN();
-
-        USB.print(F("operating 64-b PAN ID: "));
-        USB.printHex(xbeeZB.operating64PAN[0]);
-        USB.printHex(xbeeZB.operating64PAN[1]);
-        USB.printHex(xbeeZB.operating64PAN[2]);
-        USB.printHex(xbeeZB.operating64PAN[3]);
-        USB.printHex(xbeeZB.operating64PAN[4]);
-        USB.printHex(xbeeZB.operating64PAN[5]);
-        USB.printHex(xbeeZB.operating64PAN[6]);
-        USB.printHex(xbeeZB.operating64PAN[7]);
-
-        xbeeZB.getAssociationIndication();
-
-        if( xbeeZB.associationIndication != 0 )
-        {
-          USB.print(F("; Coordinator not found. Please turn on the Coordinator (Gateway / Meshlium)."));
-        }
-
-        USB.println();
-      }
-
-
-      USB.println(F("\n\nWaspmote ZigBee joined a Coordinator:"));
-
-      // 8.3.2. When XBee is associated print all network 
-      // parameters unset channel verification JV=0
-      xbeeZB.setChannelVerification(0);
-      xbeeZB.writeValues();
-
-      // 8.3.3. get network parameters 
-      xbeeZB.getOperating16PAN();
-      xbeeZB.getOperating64PAN();
-      xbeeZB.getChannel();
-
-      USB.print(F("   operating 16-b PAN ID: "));
-      USB.printHex(xbeeZB.operating16PAN[0]);
-      USB.printHex(xbeeZB.operating16PAN[1]);
-      USB.println();
-
-      USB.print(F("   operating 64-b PAN ID: "));
-      USB.printHex(xbeeZB.operating64PAN[0]);
-      USB.printHex(xbeeZB.operating64PAN[1]);
-      USB.printHex(xbeeZB.operating64PAN[2]);
-      USB.printHex(xbeeZB.operating64PAN[3]);
-      USB.printHex(xbeeZB.operating64PAN[4]);
-      USB.printHex(xbeeZB.operating64PAN[5]);
-      USB.printHex(xbeeZB.operating64PAN[6]);
-      USB.printHex(xbeeZB.operating64PAN[7]);
-      USB.println();
-
-      USB.print(F("   channel: "));
-      USB.printHex(xbeeZB.channel);
-      USB.println();
-    }
-
-    USB.OFF();
-  }
 }
-// Test //
-*/
-  }
+
+
 void loop()
 {
   // set Green LED
@@ -544,20 +291,7 @@ void loop()
   frame.setID(node_id);
   frame.createFrame(ASCII);  
 
-// Test //
-/*
   // 9.2 Add frame fields
-  if( LoRa_type == false )
-  {
-    if( (XBEE_type != 2) && (XBEE_type < 5) )
-    {
-      // add low MAC address in the case it is not a DigiMesh firmware
-      frame.addSensor(SENSOR_MAC, macLow);
-    }
-  }
-  // Test //
-  */
-  
   frame.addSensor(SENSOR_ACC, ACC.getX(), ACC.getY(), ACC.getZ() );
   frame.addSensor(SENSOR_IN_TEMP, RTC.getTemperature());
   frame.addSensor(SENSOR_BAT, PWR.getBatteryLevel());
@@ -583,91 +317,12 @@ void loop()
       USB.println(F("sending error"));
     } 
   }
-  
-  // Test //
-  /*
   else
   {
     if( XBEE_type == 5 ) 
     {
       USB.println(F("the frame above is printed just by USB (it is not sent because no XBee is plugged)"));  
     }
-    if( XBEE_type < 5 ) 
-    {
-      // 10.1 set packet to send
-      packet=(packetXBee*) calloc(1,sizeof(packetXBee)); // memory allocation
-      packet->mode=BROADCAST; // set Unicast mode
-
-      // 10.2 send the packet via the correct object depending on the protocol
-
-      // case 802.15.4
-      if (XBEE_type == 0) 
-      { 
-        // turn XBee on
-        xbee802.ON();  
-        // sets Destination parameters
-        xbee802.setDestinationParams(packet, destination, frame.buffer, frame.length); 
-        // send data
-        xbee802.sendXBee(packet);
-
-        // check TX flag
-        if( xbee802.error_TX == 0 )
-        {
-          USB.println(F("the frame above was sent"));
-        }
-        else 
-        {
-          USB.println(F("sending error"));
-        }    
-      } 
-
-      // case DM or 868/900
-      if( (XBEE_type == 1) || (XBEE_type == 2) || (XBEE_type == 4) ) 
-      {
-        // turn XBee on
-        xbeeDM.ON();
-        // sets Destination parameters
-        xbeeDM.setDestinationParams(packet, destination, frame.buffer, frame.length); 
-        // send data
-        xbeeDM.sendXBee(packet);
-
-        // check TX flag
-        if( xbeeDM.error_TX == 0 )
-        {
-          USB.println(F("the frame above was sent"));
-        }
-        else 
-        {
-          USB.println(F("sending error"));
-        }
-      }  
-
-      // case ZB Router (not coordinator)
-      if ((XBEE_type == 3) && (ZIGBEE_type > 0))
-      { 
-        // turn XBee on 
-        xbeeZB.ON();
-
-        // sets Destination parameters
-        xbeeZB.setDestinationParams(packet, destination, frame.buffer, frame.length); 
-        // send data
-        xbeeZB.sendXBee(packet);
-
-        // check TX flag
-        if( xbeeZB.error_TX == 0 )
-        {
-          USB.println(F("the frame above was sent"));
-        }
-        else 
-        {
-          USB.println(F("sending error"));
-        }
-      }
-// Test //
-*/
-      // 10.3 free memory
-      free(packet);
-      packet = NULL;
-
+  }
   delay(5000);
 }
