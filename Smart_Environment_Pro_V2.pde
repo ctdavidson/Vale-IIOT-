@@ -32,10 +32,67 @@
 #include <WaspXBeeDM.h>
 #include <WaspFrame.h>
 #include <WaspSX1272.h>
+#include <WaspSensorGas_Pro.h>
+#include <WaspSensorGas_v20.h>
 
+
+char  CONNECTOR_A[3] = "CA";      
+char  CONNECTOR_B[3] = "CB";    
+char  CONNECTOR_C[3] = "CC";
+char  CONNECTOR_D[3] = "CD";
+char  CONNECTOR_E[3] = "CE";
+char  CONNECTOR_F[3] = "CF";
+
+long  sequenceNumber = 0;   
+                                               
+char  nodeID[10] = "MY_MOTE";   
+
+char* sleepTime = "00:01:23:20";           
+
+char data[100];     
+
+float connectorAFloatValue; 
+float connectorBFloatValue;  
+float connectorCFloatValue;    
+float connectorDFloatValue;   
+float connectorEFloatValue;
+float connectorFFloatValue;
+
+int connectorAIntValue;
+int connectorBIntValue;
+int connectorCIntValue;
+int connectorDIntValue;
+int connectorEIntValue;
+int connectorFIntValue;
+
+char  connectorAString[10];  
+char  connectorBString[10];   
+char  connectorCString[10];
+char  connectorDString[10];
+char  connectorEString[10];
+char  connectorFString[10];
+
+//
+Gas CO2(SOCKET_1);
+Gas CO(SOCKET_2);
+Gas O3(SOCKET_3);
+Gas O2(SOCKET_4);
+Gas NO(SOCKET_5);
+Gas NO2(SOCKET_6);
+
+float temperature; 
+float humidity; 
+float pressure;
+float concCO2;
+float concCO;
+float concO3;
+float concO2;
+float concNO;
+float concNO2;
+//
 
 // Define the Waspmote default ID
-char node_id[] = "Tom_Environment_1";
+char node_id[] = "Tom_Environment_2";
 
 // Define the authentication key
 char key_access[] = "85045124";
@@ -83,7 +140,7 @@ boolean LoRa_type = true;
 
 void setup()
 {
-
+ CO.ON();
   ///////////////////////////////////////
   // Boards ON       ////////////////////
   ///////////////////////////////////////
@@ -281,11 +338,18 @@ void loop()
 {
   // set Green LED
   Utils.setLED(LED1,LED_ON);
-  
+    //Turn on the sensor board
+    SensorGasv20.ON();
   
   ////////////////////////////////////////////////
   // 9. Message composition
   ////////////////////////////////////////////////
+   SensorGasv20.readValue(SENS_HUMIDITY);
+   connectorBFloatValue = SensorGasv20.readValue(SENS_HUMIDITY);
+    //Conversion into a string
+   Utils.float2String(connectorBFloatValue, connectorBString, 2);
+
+humidity = CO.getHumidity();
 
   // 9.1 Create new frame (No mote id)
   frame.setID(node_id);
@@ -295,7 +359,7 @@ void loop()
   frame.addSensor(SENSOR_ACC, ACC.getX(), ACC.getY(), ACC.getZ() );
   frame.addSensor(SENSOR_IN_TEMP, RTC.getTemperature());
   frame.addSensor(SENSOR_BAT, PWR.getBatteryLevel());
-
+  frame.addSensor(SENSOR_GP_HUM, humidity);
   // 9.3 Print frame
   // Example:<=>#35690399##5#MAC:4066EF6B#ACC:-47;-26;1000#IN_TEMP:26.25#BAT:59#
   frame.showFrame();
