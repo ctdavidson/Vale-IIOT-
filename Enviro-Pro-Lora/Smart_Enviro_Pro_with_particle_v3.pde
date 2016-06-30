@@ -78,7 +78,7 @@ void setup()
     // (baudrate at 115200  and API mode enabled)
     ///////////////////////////////// 
     // Note: Only valid for SOCKET 0
-    xbee802.ON();
+    //xbee802.ON(); 
     Utils.setMuxSocket0();
     delay(500);
     beginSerial(9600, 0);
