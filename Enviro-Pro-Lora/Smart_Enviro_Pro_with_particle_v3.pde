@@ -50,7 +50,6 @@ float pressure;		// Stores the pressure in Pa
 int status;
 int measure;
 
-char node_ID[] = "AQM_OPCN2";
 
 // insert by Alex, only for test
 int XBEE_type = 5;
@@ -59,14 +58,14 @@ boolean LoRa_type = true;
 uint8_t out0;
 uint8_t out1;
 
-char node_id[] = "Tom";
+char node_id[] = "Tom2";
 
 
 void setup()
 {
-    USB.println(node_ID);
+    USB.println(node_id);
     // Set the Waspmote ID
-    frame.setID(node_ID); 
+  //  frame.setID(node_id); 
     
      /////////////////////////////////
   // 3. Set up RTC and ACC
@@ -74,6 +73,20 @@ void setup()
     delay(500);
     RTC.ON();
     ACC.ON();
+    /////////////////////////////////
+    // 4. Set Waspmote setting for XBee module for first time.
+    // (baudrate at 115200  and API mode enabled)
+    ///////////////////////////////// 
+    // Note: Only valid for SOCKET 0
+    xbee802.ON();
+    Utils.setMuxSocket0();
+    delay(500);
+    beginSerial(9600, 0);
+    printString("+++", 0);
+    delay(2000);
+    printString("ATBD7,AP2,WR,CN\r\n", 0);
+    delay(200);
+      
     
     // checking if it is a LoRa module
     sx1272.ON();  
@@ -92,8 +105,6 @@ void setup()
   /////////////////////////////////     
   USB.println(F("\nStarting program by default"));
 
-  if( LoRa_type == true )
-  {
     // LoRa_type is TRUE
     USB.println(F("SX1272 module is plugged on socket 0:"));
     if( out1 == 0 )
@@ -126,16 +137,15 @@ void setup()
         USB.println(F("     Node Address: 3"));
       }
     }
-  }
  USB.println();
  USB.println(F("==============================="));
-
 
 }	
 
 
 void loop()
 {
+    LoRa_type == true;
     // set Green LED
     Utils.setLED(LED1,LED_ON);
     ///////////////////////////////////////////
@@ -302,8 +312,6 @@ void loop()
   // 10. Send the packet
   ////////////////////////////////////////////////
 
-  if( LoRa_type == true )
-  {
     out0 = sx1272.sendPacketTimeout(BROADCAST_0, frame.buffer, frame.length);
     if( out0 == 0 )
     {
@@ -313,15 +321,9 @@ void loop()
     {
       USB.println(F("sending error"));
     } 
-  }
-  else
-  {
-    if( XBEE_type == 5 ) 
-    {
-      USB.println(F("the frame above is printed just by USB (it is not sent because no XBee is plugged)"));  
-    }
-  }
-  //delay(500);
+
+
+  delay(500);
 
     ///////////////////////////////////////////
     // 5. Sleep
@@ -329,7 +331,7 @@ void loop()
 
     // Go to deepsleep 
     // After 3 minutes, Waspmote wakes up thanks to the RTC Alarm
-    PWR.deepSleep("00:00:00:07", RTC_OFFSET, RTC_ALM1_MODE1, ALL_OFF);
+  //  PWR.deepSleep("00:00:00:07", RTC_OFFSET, RTC_ALM1_MODE1, ALL_OFF);
   //  PWR.deepSleep("00:00:02:37", RTC_OFFSET, RTC_ALM1_MODE1, ALL_OFF);
 
 }
