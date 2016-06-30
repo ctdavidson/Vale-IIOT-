@@ -162,7 +162,7 @@ void loop()
     if (status == 1)
     {
         // Power the fan and the laser and perform a measure of 8 seconds
-     //   measure = OPC_N2.getPM(8000);
+        measure = OPC_N2.getPM(8000);
         if (measure == 1)
         {
             USB.println(F("Measure performed"));
@@ -190,7 +190,7 @@ void loop()
     // turn off the board automatically
     OPC_N2.OFF();
 
-   // delay(15000);
+    delay(15000);
    // delay(1500);
 
     ///////////////////////////////////////////
@@ -207,7 +207,8 @@ void loop()
     // The sensor needs time to warm up and get a response from gas
     // To reduce the battery consumption, use deepSleep instead delay
     // After 2 minutes, Waspmote wakes up thanks to the RTC Alarm
-   // PWR.deepSleep("00:00:00:10", RTC_OFFSET, RTC_ALM1_MODE1, ALL_ON);
+  //  PWR.deepSleep("00:00:02:00", RTC_OFFSET, RTC_ALM1_MODE1, ALL_ON);
+    PWR.deepSleep("00:00:00:10", RTC_OFFSET, RTC_ALM1_MODE1, ALL_ON);
 
 
     ///////////////////////////////////////////
@@ -328,7 +329,7 @@ void loop()
 
     // Go to deepsleep 
     // After 3 minutes, Waspmote wakes up thanks to the RTC Alarm
-//    PWR.deepSleep("00:00:00:07", RTC_OFFSET, RTC_ALM1_MODE1, ALL_OFF);
+    PWR.deepSleep("00:00:00:07", RTC_OFFSET, RTC_ALM1_MODE1, ALL_OFF);
   //  PWR.deepSleep("00:00:02:37", RTC_OFFSET, RTC_ALM1_MODE1, ALL_OFF);
 
 }
