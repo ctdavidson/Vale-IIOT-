@@ -1,4 +1,4 @@
-//
+// change nodeAddress
 
 
 // Include this library to transmit with sx1272
@@ -98,8 +98,8 @@ void loop()
   USB.println(e); 
 
   // Select the node address value: from 2 to 255
-  e = sx1272.setNodeAddress(2);
-  USB.print(F("Setting Node Address to '2'.\t state "));
+  e = sx1272.setNodeAddress(3);
+  USB.print(F("Setting Node Address to '3'.\t state "));
   USB.println(e);
   USB.println();
 
