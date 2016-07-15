@@ -1,0 +1,351 @@
+
+/*
+* ------ [900_01] - configure basic XBee parameters --------
+*
+* Explanation: This program shows how to set the basic networking
+* parameters to a XBee module.
+*
+* Copyright (C) 2015 Libelium Comunicaciones Distribuidas S.L.
+* http://www.libelium.com
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program. If not, see <http://www.gnu.org/licenses/>.
+*
+* Version: 0.2
+* Design: David Gascón
+* Implementation: Yuri Carmona
+*/
+
+#include <WaspXBee900.h>
+#include <WaspFrame.h>
+#include <WaspSensorSW.h>
+
+
+///////////////////////////////////
+// define variable
+///////////////////////////////////
+float value_pH;
+float value_temp;
+float value_pH_calculated;
+float value_orp;
+float value_orp_calculated;
+float value_di;
+float value_do;
+float value_do_calculated;
+float value_cond;
+float value_cond_calculated;
+uint8_t error;
+
+// Destination MAC address /////////////// 
+//////////////////////////////////////////
+char RX_ADDRESS[] = "0013A20040A5A041";
+//char RX_ADDRESS[] = "000000000000FFFF";
+//////////////////////////////////////////
+
+// Define the Waspmote ID
+char WASPMOTE_ID[] = "SW_X900_Node1";
+
+/////////////////////////////////////////
+// Calibration values
+////////////////////////////////////////
+#define cal_point_10 1.985
+#define cal_point_7 2.070
+#define cal_point_4 2.227
+// Temperature at which calibration was carried out
+#define cal_temp 23.7
+// Offset obtained from sensor calibration
+#define calibration_offset 0.0
+// Calibration of the sensor in normal air
+#define air_calibration 2.65
+// Calibration of the sensor under 0% solution
+#define zero_calibration 0.0
+// Value 1 used to calibrate the sensor
+#define point1_cond 10500
+// Value 2 used to calibrate the sensor
+#define point2_cond 40000
+// Point 1 of the calibration 
+#define point1_cal 197.00
+// Point 2 of the calibration 
+#define point2_cal 150.00
+
+pHClass pHSensor;
+ORPClass ORPSensor;
+DIClass DISensor;
+DOClass DOSensor;
+conductivityClass ConductivitySensor;
+pt1000Class TemperatureSensor;
+
+//////////////////////////////////////////
+// PAN (Personal Area Network) Identifier
+uint8_t panID[2] = {0x7F,0xFF};
+
+
+// Define the Encryption mode: 1 (enabled) or 0 (disabled)
+uint8_t encryptionMode = 0;
+
+
+// Define the AES 16-byte Encryption Key
+char encryptionKey[] = "WaspmoteLinkKey!";
+
+
+void setup()
+{
+// open USB port
+USB.ON();
+
+USB.println(F("-------------------------------"));
+USB.println(F("Configure XBee 900"));
+USB.println(F("Sending Packets"));
+USB.println(F("-------------------------------"));
+
+// init XBee
+xbee900.ON(SOCKET1);
+
+// store Waspmote identifier in EEPROM memory
+ frame.setID( WASPMOTE_ID );
+  
+
+/////////////////////////////////////
+// 1. set PANID
+/////////////////////////////////////
+xbee900.setPAN( panID );
+
+// check the AT commmand execution flag
+if( xbee900.error_AT == 0 )
+{
+USB.print(F("1. PAN ID set OK to: 0x"));
+USB.printHex( xbee900.PAN_ID[0] );
+USB.printHex( xbee900.PAN_ID[1] );
+USB.println();
+}
+else
+{
+USB.println(F("1. Error calling 'setPAN()'"));
+}
+
+
+/////////////////////////////////////
+// 2. set encryption mode (1:enable; 0:disable)
+/////////////////////////////////////
+xbee900.setEncryptionMode( encryptionMode );
+
+
+// check the AT commmand execution flag
+if( xbee900.error_AT == 0 )
+{
+USB.print(F("2. AES encryption configured (1:enabled; 0:disabled):"));
+USB.println( xbee900.encryptMode, DEC );
+}
+else
+{
+USB.println(F("2. Error calling 'setEncryptionMode()'"));
+}
+
+
+/////////////////////////////////////
+// 3. set encryption key
+/////////////////////////////////////
+xbee900.setLinkKey( encryptionKey );
+
+// check the AT commmand execution flag
+if( xbee900.error_AT == 0 )
+{
+USB.println(F("3. AES encryption key set OK"));
+}
+else
+{
+USB.println(F("3. Error calling 'setLinkKey()'"));
+}
+
+/////////////////////////////////////
+// 4. write values to XBee module memory
+/////////////////////////////////////
+xbee900.writeValues();
+
+// check the AT commmand execution flag
+if( xbee900.error_AT == 0 )
+{
+USB.println(F("4. Changes stored OK"));
+}
+else
+{
+USB.println(F("4. Error calling 'writeValues()'"));
+}
+
+USB.println(F("-------------------------------"));
+}
+
+void loop()
+{
+ 
+ 
+  
+ // Configure the calibration values
+  pHSensor.setCalibrationPoints(cal_point_10, 
+                                cal_point_7, 
+                                cal_point_4, 
+                                cal_temp);
+  DOSensor.setCalibrationPoints(air_calibration, zero_calibration);
+  ConductivitySensor.setCalibrationPoints(point1_cond, 
+                                          point1_cal, 
+                                          point2_cond, 
+                                          point2_cal);
+  
+  SensorSW.ON();
+  
+  
+  ///////////////////////////////////////////
+  // 1. Turn on the board
+  /////////////////////////////////////////// 
+
+  SensorSW.ON();
+  delay(2000);
+
+
+  ///////////////////////////////////////////
+  // 2. Read sensors
+  ///////////////////////////////////////////  
+USB.println(F("1. Read Sensors"));
+  // Read the ph sensor
+  value_pH = pHSensor.readpH();
+  // Convert the value read with the information obtained in calibration
+  value_pH_calculated = pHSensor.pHConversion(value_pH,value_temp);
+  // Read the temperature sensor
+  value_temp = TemperatureSensor.readTemperature();
+  // Reading of the ORP sensor
+  value_orp = ORPSensor.readORP();
+  // Apply the calibration offset
+  value_orp_calculated = value_orp - calibration_offset;
+  // Reading of the DI sensor
+  value_di = DISensor.readDI();
+  // Reading of the ORP sensor
+  value_do = DOSensor.readDO();
+  // Conversion from volts into dissolved oxygen percentage
+  value_do_calculated = DOSensor.DOConversion(value_do);
+  // Reading of the Conductivity sensor
+  value_cond = ConductivitySensor.readConductivity();
+  // Conversion from resistance into ms/cm
+  value_cond_calculated = ConductivitySensor.conductivityConversion(value_cond);
+  delay(1000);
+  
+  ///////////////////////////////////////////
+  // 3. Turn off the sensors
+  /////////////////////////////////////////// 
+
+  SensorSW.OFF();
+ USB.println(F("1. Sensors Off"));
+ 
+///////////////////////////////////////////
+// 1. Create ASCII frame
+///////////////////////////////////////////
+
+// create new frame
+frame.createFrame(ASCII);
+
+// add frame fields
+
+// Add Bettery
+frame.addSensor(SENSOR_BAT, PWR.getBatteryLevel());
+// Add temperature
+  frame.addSensor(SENSOR_WT, value_temp);
+  // Add PH
+  frame.addSensor(SENSOR_PH, value_pH_calculated);
+  // Add ORP value
+  frame.addSensor(SENSOR_ORP, value_orp_calculated);
+  // Add DI value
+  frame.addSensor(SENSOR_DINA, value_di);
+  // Add DO value
+  frame.addSensor(SENSOR_DO, value_do_calculated);
+  // Add conductivity value
+  frame.addSensor(SENSOR_COND, value_cond_calculated);
+///////////////////////////////////////////
+// 2. Send packet
+///////////////////////////////////////////
+
+// send XBee packet
+error = xbee900.send( RX_ADDRESS, frame.buffer, frame.length );
+USB.println(F("1. Frame Sent"));
+
+// check TX flag
+if( error == 0 )
+{
+USB.println(F("send ok"));
+
+// blink green LED
+Utils.blinkGreenLED();
+
+}
+else
+{
+USB.println(F("send error"));
+
+// blink red LED
+Utils.blinkRedLED();
+}
+
+// wait for five seconds
+delay(1000);
+
+// enable awake mode before managing the module
+  // this is done to make sure the module is not in
+  // sleep mode when we try to manage it
+  xbee900.wake();    
+  
+  // set sleep mode
+  xbee900.setSleepMode(1); 
+  
+  // check flag
+  if( xbee900.error_AT == 0 )
+  {
+    USB.println(F("sleep mode set"));
+  }
+  else
+  {
+    USB.println(F("Error while setting sleep mode")); 
+  }
+  USB.println(); 
+  
+////////////////////////////////////
+  // 1. Set sleep mode
+  ////////////////////////////////////
+    
+  // 1.1. put XBee to sleep
+  xbee900.sleep();  
+  USB.println(F("1. XBee in sleep mode"));
+  
+  // 1.2. set red LED during sleep time 
+  USB.println(F("RED LED switched on"));
+  Utils.setLED(LED0, LED_ON);
+  
+  // 1.3. wait 20 seconds in sleep mode  
+  USB.println(F("While XBee is in sleep mode --> wait for 20 seconds...\n"));
+  delay(900000);  
+
+
+////////////////////////////////////
+  // 2. Wake up the XBee module
+////////////////////////////////////
+  
+  // 2.1. wake XBee up
+  xbee900.wake();  
+  USB.println(F("2. XBee wakes-up"));  
+  
+  // 2.2. switch LED off when leaving sleep mode
+  USB.println(F("RED LED switched off"));
+  Utils.setLED(LED0, LED_OFF);
+ 
+  // 2.3. wait 5 seconds
+  USB.println(F("While XBee is in normal mode --> wait for 10 seconds...\n"));
+  delay(20000);
+
+}
