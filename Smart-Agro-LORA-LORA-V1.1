@@ -320,7 +320,13 @@ void measureSensors()
   // Add wetness
   //frame.addSensor(SENSOR_LW, wetness);
   // Add digital temperature
-  frame.addSensor(SENSOR_TCB, digitalTemperature);
+  /////////////////////////////////////////////////////
+  // There is a probelm when you activate this frame //
+  /////////////////////////////////////////////////////
+  // frame.addSensor(SENSOR_TCB, digitalTemperature);
+  /////////////////////////////////////////////////////
+  
+  
   // Add digital humidity
   frame.addSensor(SENSOR_HUMB, digitalHumidity);
   // Add radiation
