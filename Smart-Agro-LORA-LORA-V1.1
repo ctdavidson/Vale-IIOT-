@@ -301,7 +301,9 @@ void measureSensors()
   USB.println(F("Create a new Frame:"));
   
   // create new frame
-  frame.createFrame(ASCII);  
+    frame.createFrame(MAX_FRAME);  
+USB.println(frame.getFrameSize(),DEC); 
+
 
   // add frame fields
   //frame.addSensor(SENSOR_DATE, RTC.date, RTC.month, RTC.year);
