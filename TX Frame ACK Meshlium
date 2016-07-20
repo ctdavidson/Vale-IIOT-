@@ -111,11 +111,14 @@ void loop()
   // get Time from RTC
   RTC.getTime();
 
-  ///////////////////////////////////////////
-  // 1. Create ASCII frame
-  ///////////////////////////////////////////  
+///////////////////////////////////////////
+// 1. Create Max Frame Binnary frame
+///////////////////////////////////////////
+USB.println(F("Create a new Frame:"));
 
-  USB.println(F("Create a new Frame:"));
+    frame.createFrame(MAX_FRAME);  
+USB.println(frame.getFrameSize(),DEC); 
+  
   
   // create new frame
   frame.createFrame(ASCII);  
