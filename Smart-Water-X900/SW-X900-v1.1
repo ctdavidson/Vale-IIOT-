@@ -246,11 +246,12 @@ USB.println(F("1. Read Sensors"));
  USB.println(F("1. Sensors Off"));
  
 ///////////////////////////////////////////
-// 1. Create ASCII frame
+// 1. Create Max Frame Binnary frame
 ///////////////////////////////////////////
 
 // create new frame
-frame.createFrame(ASCII);
+    frame.createFrame(MAX_FRAME);  
+USB.println(frame.getFrameSize(),DEC); 
 
 // add frame fields
 
