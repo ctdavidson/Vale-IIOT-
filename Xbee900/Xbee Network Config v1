@@ -45,7 +45,14 @@ uint8_t  channel = 0x0F;
 
 // Destination MAC address
 //////////////////////////////////////////
-char RX_ADDRESS[] = "0013A200408DE1AF";
+//char RX_ADDRESS[] = "0013A200408DE1AF";
+//////////////////////////////////////////
+
+//OR
+
+// Define BROADCAST MAC address
+//////////////////////////////////////////
+char RX_ADDRESS[] = "000000000000FFFF";
 //////////////////////////////////////////
 
 // Define the Waspmote ID
