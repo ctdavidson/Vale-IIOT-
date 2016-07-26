@@ -55,30 +55,9 @@ uint8_t  channel = 0x0F;
 char RX_ADDRESS[] = "000000000000FFFF";
 //////////////////////////////////////////
 
+
 // Define the Waspmote ID
 char WASPMOTE_ID[] = "node_1_X900_Test_Far";
-
-/////////////////Sleep Mode //////////////////
-///////////////////////////////////////////////
-/*  
- // Sleep Commands 
-{ "SM",	OUTPUT_DECIMAL | FLAG_DIGIMESH900,
-"Sleep Mode",
-"Set or read the Sleep Mode setting (0, 7 or 8)." },
-
-{ "SO",	OUTPUT_HEX | FLAG_DIGIMESH900,
-"Sleep Options",
-"Set or read the Sleep Options setting (bitfield)." },  
-
-*/
-
-#define FLAG_COORDINATOR		0x0070
-// digimesh_syncr_sleep_monitor
-// digimesh_syncr_sleep_transmitter
-
-//////////////////////////////////////////////////
-///////////////////// END SLEEP Settings///////////
-//////////////////////////////////////////////////
 
 
 // define variable
