@@ -21,7 +21,7 @@
 uint8_t  panID[2] = {0x7F,0xFF}; 
 
 
-
+////////////////////////////////////////////
 // Define Freq Channel to be set: 
 // Digimesh 2.4Ghz. Range from 0x0B to 0x1A
 // Digimesh 900Mhz. Range from 0x00 to 0x0B
@@ -41,6 +41,13 @@ uint8_t  channel = 0x01;
 0x0A – Channel 10 -- 923,6 – 925,76 GHz
 0x0B – Channel 11 -- 925,76 – 928 GHz
 */
+//////////////////////////////////////////
+
+
+
+
+
+
 
 // Destination MAC address
 //////////////////////////////////////////
@@ -69,6 +76,11 @@ uint8_t encryptionMode = 0;
 // Define the AES 16-byte Encryption Key
 char  encryptionKey[] = "WaspmoteValeKey!"; 
  
+
+
+
+///////////////Config Xbee //////////////////
+////////////////////////////////////////////
 
 void setup()
 {
@@ -106,6 +118,20 @@ void setup()
 
 
 
+///////////////////// Set Power Lever ///////////////////
+/*
+Parameter 	XBee-PRO
+0 	         10dBm
+1 	         12dBm
+2 	         14dBm
+3 	         16dBm 
+4 	         18dBm
+*/
+
+xbeeDM.setPowerLevel(4);
+xbeeDM.getPowerLevel();
+
+//////////////////////////////////////////////
 
   /////////////////////////////////////
   // 2. set PANID
