@@ -1,4 +1,3 @@
-
 ///////////////////////////////////////////////
 /////////// Config Xbee900 ///////////////////
 //////////////////////////////////////////////
@@ -26,7 +25,7 @@ uint8_t  panID[2] = {0x7F,0xFF};
 // Define Freq Channel to be set: 
 // Digimesh 2.4Ghz. Range from 0x0B to 0x1A
 // Digimesh 900Mhz. Range from 0x00 to 0x0B
-uint8_t  channel = 0x0F;
+uint8_t  channel = 0x01;
 
 /* 
 0x00 – Channel 0 -- 902 – 904,16 GHz
@@ -57,7 +56,7 @@ char RX_ADDRESS[] = "000000000000FFFF";
 
 
 // Define the Waspmote ID
-char WASPMOTE_ID[] = "node_1_X900_Test_Far";
+char WASPMOTE_ID[] = "X900_Test_Far";
 
 
 // define variable
@@ -70,8 +69,7 @@ uint8_t encryptionMode = 0;
 // Define the AES 16-byte Encryption Key
 char  encryptionKey[] = "WaspmoteValeKey!"; 
  
- 
- 
+
 void setup()
 {
   // open USB port
@@ -81,6 +79,7 @@ void setup()
   USB.println(F("Configure XBee Digimesh"));
   USB.println(F("-------------------------------"));
   
+
   // store Waspmote identifier in EEPROM memory
   frame.setID( WASPMOTE_ID );
   
@@ -165,7 +164,17 @@ void setup()
   }
 
 
-
+  
+   ////////////Set RTC Time /////////////////////////
+ // Powers RTC up, init I2C bus and read initial values
+  USB.println(F("Init RTC"));
+  RTC.ON();
+  
+  // Setting time [yy:mm:dd:dow:hh:mm:ss]
+  RTC.setTime("16:07:27:00:09:55:00");
+  USB.print(F("Setting time: "));
+ // USB.println(F("13:01:16:06:12:33:00"));
+/////////////////////////////////////////////
 
   /////////////////////////////////////
   // 5. write values to XBee module memory
@@ -226,7 +235,12 @@ void loop()
 //////////// END Digi Mesh Config ////////////
 ////////////////////////////////////////////
 
+////////////RTC Time /////////////////////
+ // get Time from RTC
+  RTC.getTime();
+/////////////////////////////////////////
 
+  
 ///////////////////////////////////////////
 // 1. Create ASCII frame
 ///////////////////////////////////////////  
@@ -235,10 +249,12 @@ void loop()
   frame.createFrame(ASCII);  
   
   // add frame fields
-  frame.addSensor(SENSOR_STR, "new_sensor_frame");
+  //frame.addSensor(SENSOR_STR, "new_sensor_frame");
+  
+  frame.addSensor(SENSOR_DATE, RTC.date, RTC.month, RTC.year);
+  frame.addSensor(SENSOR_TIME, RTC.hour, RTC.minute, RTC.second);
   frame.addSensor(SENSOR_BAT, PWR.getBatteryLevel()); 
   
-
   USB.println(F("-------------------------------"));
   USB.println(F("Send Packet"));
   USB.println(F("-------------------------------"));
