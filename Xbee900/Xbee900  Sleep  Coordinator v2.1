@@ -1,13 +1,12 @@
 ///////////////////////////////////////////////
-/////Config Xbee900  Sleep Coordinator  ///////
+/////Config Xbee900 Sleep Coordinator ////////
 //////////////////////////////////////////////
 /*
 *  You should have received a copy of the GNU General Public License 
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  *  
- *  Version:           0.2
- *  Design:            David Gascón 
- *  Implementation:    Yuri Carmona
+ *  Version:           0.2.1
+ *  Implementation:    Tom Massicotte
 */
 
 
@@ -21,12 +20,11 @@
 uint8_t  panID[2] = {0x7F,0xFF}; 
 
 
-
+////////////////////////////////////////////
 // Define Freq Channel to be set: 
 // Digimesh 2.4Ghz. Range from 0x0B to 0x1A
 // Digimesh 900Mhz. Range from 0x00 to 0x0B
-uint8_t  channel = 0x00;
-
+uint8_t  channel = 0x01;
 
 /* 
 0x00 – Channel 0 -- 902 – 904,16 GHz
@@ -42,6 +40,13 @@ uint8_t  channel = 0x00;
 0x0A – Channel 10 -- 923,6 – 925,76 GHz
 0x0B – Channel 11 -- 925,76 – 928 GHz
 */
+//////////////////////////////////////////
+
+
+
+
+
+
 
 // Destination MAC address
 //////////////////////////////////////////
@@ -55,8 +60,9 @@ uint8_t  channel = 0x00;
 char RX_ADDRESS[] = "000000000000FFFF";
 //////////////////////////////////////////
 
+
 // Define the Waspmote ID
-char WASPMOTE_ID[] = "X900_Sleep_Master";
+char WASPMOTE_ID[] = "X900_S_M_#1";
 
 
 // define variable
@@ -68,64 +74,36 @@ uint8_t encryptionMode = 0;
 
 // Define the AES 16-byte Encryption Key
 char  encryptionKey[] = "WaspmoteValeKey!"; 
-
-/*
  
-//////////////////Set Sleeptime ////////////////////////
- // SP parameter: Time to be asleep -> 5 seconds: 0x0001F4 (hex format, time in units of 10ms)
-// Other possible values: 
-//   0x0003E8 (10 seconds)
-//   0x0000C8 (2 seconds)
-//   0x0005DC (15 seconds)
-//   0x001770 (60 seconds)
-//   0x007530 (5 Min 3000ms)
-//uint8_t asleep[3]={ 0x00,0x75,0x30};
-uint8_t asleep[3]={ 0x00,0x01,0xF4};
 
-///////////////Set Wake time /////////////////////////////
-// ST parameter: Time to be awake -> 5 seconds: 0x001388 (hex format, time in units of 1ms)
-// Other possible values: 
-//   0x002710 (10 seconds)
-//   0x0007D0 (2 seconds)
-//   0x003A98 (15 seconds)
-//   0x00EA60 (60 seconds)
-//   0x0493E0 (5 Min )
-uint8_t awake[3]={ 0x04,0x93,0xE0};
 
-// deifne variable to get running time
-unsigned long startTime;
- */
- 
-//////////////////// End Sleep/Wake Config 
- 
+
+///////////////Config Xbee //////////////////
+////////////////////////////////////////////
+
 void setup()
 {
-  
-// open USB port
+  // open USB port
   USB.ON();
 
   USB.println(F("-------------------------------"));
   USB.println(F("Configure XBee Digimesh"));
   USB.println(F("-------------------------------"));
   
-// store Waspmote identifier in EEPROM memory
+
+  // store Waspmote identifier in EEPROM memory
   frame.setID( WASPMOTE_ID );
   
-/////////////////////////////////////////
-//////////////////////////
-// 1. XBee setup
-//////////////////////////
-//////////////////////////////////////////  
   // init XBee 
  xbeeDM.ON();    
- 
 
-/////////////////////////////////////
-// 1. set channel 
-/////////////////////////////////////
+
+  /////////////////////////////////////
+  // 1. set channel 
+  /////////////////////////////////////
   xbeeDM.setChannel( channel );
 
-// check at commmand execution flag
+  // check at commmand execution flag
   if( xbeeDM.error_AT == 0 ) 
   {
     USB.print(F("1. Channel set OK to: 0x"));
@@ -138,13 +116,28 @@ void setup()
   }
 
 
-/////////////////////////////////////
- // 2. set PANID
-///////////////////////////////////////
- 
+
+///////////////////// Set Power Lever ///////////////////
+/*
+Parameter 	XBee-PRO
+0 	         10dBm
+1 	         12dBm
+2 	         14dBm
+3 	         16dBm 
+4 	         18dBm
+*/
+
+xbeeDM.setPowerLevel(4);
+xbeeDM.getPowerLevel();
+
+//////////////////////////////////////////////
+
+  /////////////////////////////////////
+  // 2. set PANID
+  /////////////////////////////////////
   xbeeDM.setPAN( panID );
 
-// check the AT commmand execution flag
+  // check the AT commmand execution flag
   if( xbeeDM.error_AT == 0 ) 
   {
     USB.print(F("2. PAN ID set OK to: 0x"));
@@ -156,6 +149,8 @@ void setup()
   {
     USB.println(F("2. Error calling 'setPAN()'"));  
   }
+
+
 
 
 
@@ -194,7 +189,17 @@ void setup()
   }
 
 
-
+  
+   ////////////Set RTC Time /////////////////////////
+ // Powers RTC up, init I2C bus and read initial values
+  USB.println(F("Init RTC"));
+  RTC.ON();
+  
+  // Setting time [yy:mm:dd:dow:hh:mm:ss]
+  RTC.setTime("16:07:27:00:09:55:00");
+  USB.print(F("Setting time: "));
+ // USB.println(F("13:01:16:06:12:33:00"));
+/////////////////////////////////////////////
 
   /////////////////////////////////////
   // 5. write values to XBee module memory
@@ -217,9 +222,7 @@ void setup()
 void loop()
 {
     
-  //////////////////////////////////////////  
-  // init XBee 
- xbeeDM.ON(); 
+  
   
   /////////////////////////////////////
   // 1. get channel 
@@ -257,7 +260,12 @@ void loop()
 //////////// END Digi Mesh Config ////////////
 ////////////////////////////////////////////
 
+////////////RTC Time /////////////////////
+ // get Time from RTC
+  RTC.getTime();
+/////////////////////////////////////////
 
+  
 ///////////////////////////////////////////
 // 1. Create ASCII frame
 ///////////////////////////////////////////  
@@ -266,10 +274,12 @@ void loop()
   frame.createFrame(ASCII);  
   
   // add frame fields
-  frame.addSensor(SENSOR_STR, "new_sensor_frame");
+  //frame.addSensor(SENSOR_STR, "new_sensor_frame");
+  
+  frame.addSensor(SENSOR_DATE, RTC.date, RTC.month, RTC.year);
+  frame.addSensor(SENSOR_TIME, RTC.hour, RTC.minute, RTC.second);
   frame.addSensor(SENSOR_BAT, PWR.getBatteryLevel()); 
   
-
   USB.println(F("-------------------------------"));
   USB.println(F("Send Packet"));
   USB.println(F("-------------------------------"));
@@ -297,37 +307,8 @@ void loop()
     // blink red LED
     Utils.blinkRedLED();
   }
-
-  // wait for five seconds
-  delay(5000);
-
-///////////////////////////////////////////////////////////////
-/////////////// Preferred Sleep Coordinator ///////////////////
-xbeeDM.setSleepMode(7); // Set Sync Cyclic Sleep Mode
-xbeeDM.getSleepMode(); // Get the Sleep Mode use
-
-// SP parameter: Time to be asleep -> 5 seconds: 0x0001F4 (hex format, time in units of 10ms)
-// Other possible values: 
-//   0x0003E8 (10 seconds)
-//   0x0000C8 (2 seconds)
-//   0x0005DC (15 seconds)
-//   0x001770 (60 seconds)
-
-uint8_t asleep[3]={0x00,0x17,0x70};
-xbeeDM.setSleepTime(asleep); // Set Sleep period to 4 hours
-
-// ST parameter: Time to be awake -> 5 seconds: 0x001388 (hex format, time in units of 1ms)
-// Other possible values: 
-//   0x002710 (10 seconds)
-//   0x0007D0 (2 seconds)
-//   0x003A98 (15 seconds)
-//   0x00EA60 (60 seconds)
-
-uint8_t awake[3]={0x00,0xEA,0x60};
-xbeeDM.setAwakeTime(awake); // Set time the module remains awake: 1hour
-
-
-xbeeDM.setSleepOptions(0x01); // Set the node to be the preferred sleep coordinator
-
+USB.println(F("Wait 8 Hours"));
+  // wait for 8 hours 
+  delay(28800000);
 
 }
