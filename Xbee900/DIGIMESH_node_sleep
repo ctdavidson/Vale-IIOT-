@@ -1,10 +1,12 @@
 /*  
  *  ------ [DM_09] - set low power state in XBee module  -------- 
- * v.1 digimesh sleep
  */
 
 #include <WaspXBeeDM.h>
 #include <WaspFrame.h>
+
+#define ALL_OFF_ALEX SENS_OFF | UART0_OFF | UART1_OFF | BAT_OFF | RTC_OFF
+
 
 // Define BROADCAST MAC address
 //////////////////////////////////////////
@@ -61,28 +63,28 @@ void setup()
   // 1.2. set time the module remains awake (ST parameter)
 //  xbeeDM.setAwakeTime(awake);
   
-  // check AT command flag
-  if( xbeeDM.error_AT == 0 ) 
-  {
-    USB.println(F("ST parameter set ok"));
-  }
-  else 
-  {
-    USB.println(F("error setting ST parameter")); 
-  }
-
-  // 1.3. set Sleep period (SP parameter)
-  //xbeeDM.setSleepTime(asleep);
-  
-  // check AT command flag
-  if( xbeeDM.error_AT == 0 ) 
-  {
-    USB.println(F("SP parameter set ok"));
-  }
-  else 
-  {
-    USB.println(F("error setting SP parameter")); 
-  }
+//  // check AT command flag
+//  if( xbeeDM.error_AT == 0 ) 
+//  {
+//    USB.println(F("ST parameter set ok"));
+//  }
+//  else 
+//  {
+//    USB.println(F("error setting ST parameter")); 
+//  }
+//
+//  // 1.3. set Sleep period (SP parameter)
+//  //xbeeDM.setSleepTime(asleep);
+//  
+//  // check AT command flag
+//  if( xbeeDM.error_AT == 0 ) 
+//  {
+//    USB.println(F("SP parameter set ok"));
+//  }
+//  else 
+//  {
+//    USB.println(F("error setting SP parameter")); 
+//  }
 
   // 1.4. set sleep mode for cyclic sleep mode
   xbeeDM.setSleepMode(8);  
@@ -120,7 +122,9 @@ void loop()
   USB.println(F("..."));
 
   // 2.2. Waspmote enters sleep mode
-  PWR.sleep( SENS_OFF );
+//  #define ALL_OFF_ALEX SENS_OFF | UART0_OFF | UART1_OFF | BAT_OFF | RTC_OFF
+
+  PWR.sleep( SENS_OFF | BAT_OFF | RTC_OFF );
 
   USB.println(F("after PwrSleep..."));
   
