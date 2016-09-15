@@ -58,124 +58,8 @@ char password[] = "libeliumlibelium";
   int measure;
   int e;
 
-
-//%%%%%%%%%%%%%%%%%%%%%%%% Field Test Connection %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   void setup()
   {
-    
-    // init SX1272 module
-  sx1272.ON();
-
-  // Select frequency channel
-  e = sx1272.setChannel(CH_12_900);  
-  USB.print(F("Setting Channel CH_12_900.\t state "));  
-  USB.println(e);  
-
- // Select implicit (off) or explicit (on) header mode
-  e = sx1272.setHeaderON();
-  USB.print(F("Setting Header ON.\t\t state "));  
-  USB.println(e); 
-
-  // Select mode: from 1 to 10
-  e = sx1272.setMode(3);
-  USB.print(F("Setting Mode '3'.\t\t state ")); 
-  USB.println(e);  
-
-  // Select CRC on or off
-  e = sx1272.setCRC_ON();
-  USB.print(F("Setting CRC ON.\t\t\t state "));
-  USB.println(e); 
-
-  // Select output power (Max, High or Low)
-  e = sx1272.setPower('H');
-  USB.print(F("Setting Power to 'H'.\t\t state "));  
-  USB.println(e);  
-
-  // Select the node address value: from 2 to 255
-  e = sx1272.setNodeAddress(8);
-  USB.print(F("Setting Node Address to '26'.\t state "));
-  USB.println(e); 
-  USB.println();
-
-  delay(1000);  
-
-  USB.println(F("----------------------------------------"));
-  USB.println(F("Receiving:")); 
-  USB.println(F("----------------------------------------"));
-  
-
-
-  // receive packet
-  e = sx1272.receivePacketTimeout(10000);
-
-  // check rx status
-  if( e == 0 )
-  {
-    USB.println(F("\nShow packet received: "));
-
-    // show packet received
-    sx1272.showReceivedPacket();
-  }
-  else
-  {
-    USB.print(F("\nReceiving packet TIMEOUT, state "));
-    USB.println(e, DEC);  
-  }
-
-  ///////////////////////////////
-  // 1. Get SNR
-  ///////////////////////////////  
-  e = sx1272.getSNR();
-
-  // check status
-  if( e == 0 ) 
-  {
-    USB.print(F("Getting SNR \t\t--> OK. "));
-    USB.print(F("SNR current value is: "));
-    USB.println(sx1272._SNR);
-  }
-  else 
-  {
-    USB.println(F("Getting SNR --> ERROR"));
-  } 
-
-  ///////////////////////////////
-  // 2. Get channel RSSI
-  ///////////////////////////////
-  e = sx1272.getRSSI();
-
-  // check status
-  if( e == 0 ) 
-  {
-    USB.print(F("Getting RSSI \t\t--> OK. "));
-    USB.print(F("RSSI current value is: "));
-    USB.println(sx1272._RSSI);
-
-  }
-  else 
-  {
-    USB.println(F("Getting RSSI --> ERROR"));
-  } 
-
-  ///////////////////////////////
-  // 3. Get last packet received RSSI
-  ///////////////////////////////
-  e = sx1272.getRSSIpacket();
-
-  // check status
-  if( e == 0 ) 
-  {
-    USB.print(F("Getting RSSI packet \t--> OK. "));
-    USB.print(F("Last packet RSSI value is: "));    
-    USB.println(sx1272._RSSIpacket);
-  }
-  else 
-  {
-    USB.println(F("Getting RSSI packet --> ERROR"));
-  } 
-  
-  USB.println();
-    
   }
 
 
@@ -186,6 +70,9 @@ char password[] = "libeliumlibelium";
 {
 // Init USB port
     USB.ON();
+    USB.println(F("node26"));
+    USB.println(F("code v9.6"));
+    USB.println(F("Semtech SX1272 module. TX in LoRa to MESHLIUM"));
 
 // Switch ON RTC
     RTC.ON();
@@ -205,26 +92,34 @@ char password[] = "libeliumlibelium";
 
 // Select frequency channel
   e = sx1272.setChannel(CH_12_900);
+    USB.print(F("Setting Channel CH_12_900.\t state ")); 
+    USB.println(e);
 
 // Select implicit (off) or explicit (on) header mode
   e = sx1272.setHeaderON();
-     USB.print(F("Setting Header ON.\t\t state "));  
-     USB.println(e); 
+    USB.print(F("Setting Header ON.\t\t state "));  
+    USB.println(e); 
 
 // Select mode (mode 1)
   e = sx1272.setMode(1);  
-    USB.print(F("Setting Mode '1'.\t\t state ")); 
-    USB.println(e); 
-  
+    USB.print(F("Setting Mode '1'.\t\t state "));
+    USB.println(e);  
+
 // Select CRC on or off
   e = sx1272.setCRC_ON();
+    USB.print(F("Setting CRC ON.\t\t\t state "));
+    USB.println(e); 
 
 // Select output power (Max, High or Low)
   e = sx1272.setPower('H');
- 
+    USB.print(F("Setting Power to 'H'.\t\t state ")); 
+    USB.println(e); 
+    
  // Select the maximum number of retries: from '0' to '5'
   e = sx1272.setRetries(5);
-
+  USB.print(F("Setting Retries to '5'.\t\t state "));
+  USB.println(e);
+  USB.println();
   
   USB.println(F("----------------------------------------"));
   USB.println(F("Sending:")); 
@@ -232,13 +127,33 @@ char password[] = "libeliumlibelium";
 
   delay(1000); 
 
+///////////////////////////////
+  // 2. Get channel RSSI
+  ///////////////////////////////
+  e = sx1272.getRSSI();
+
+  // check status
+  if( e == 0 ) 
+  {
+    USB.print(F("Getting RSSI \t\t--> OK. "));
+    USB.print(F("RSSI current value is: "));
+    USB.println(sx1272._RSSI);
+
+  }
+  else 
+  {
+    USB.println(F("Getting RSSI --> ERROR"));
+  } 
+
+
+
 ////////// IMPORTANT //////////////////////////
 // Select the node address value: from 2 to 255
 // CHANGING NODE ADDRESS FOR A NEW DEVICE 
   
   e = sx1272.setNodeAddress(node_address);
-    USB.print(F("Setting Node Address to.\t "));
-    USB.println(node_address);
+    USB.printf("Setting Node Address to %d  ",node_address);
+    //USB.println(node_address);
  //   USB.print(F(" state "));
  //   USB.println(e);
     USB.println();
@@ -249,8 +164,7 @@ char password[] = "libeliumlibelium";
 // get Time from RTC
   RTC.getTime();
   
-
- 
+  
 ///////////////////////////////////////////
 // 1a. Turn on particle sensor
 ///////////////////////////////////////////  
@@ -319,7 +233,7 @@ char password[] = "libeliumlibelium";
 // To reduce the battery consumption, use deepSleep instead delay
 // After 2 minutes, Waspmote wakes up thanks to the RTC Alarm
 
-    PWR.deepSleep("00:00:02:00", RTC_OFFSET, RTC_ALM1_MODE1, ALL_ON);
+    PWR.deepSleep("00:00:01:00", RTC_OFFSET, RTC_ALM1_MODE1, ALL_ON);
 
 ///////////////////////////////////////////
 // 2b. Read gas sensors
@@ -491,7 +405,7 @@ e = sx1272.sendPacketTimeoutACKRetries ( meshlium_address, frame.buffer, frame.l
       
 // Go to deepsleep 
 // After 1 hour, Waspmote wakes up thanks to the RTC Alarm
-    PWR.deepSleep("00:00:15:00", RTC_OFFSET, RTC_ALM1_MODE1, ALL_OFF);
+// PWR.deepSleep("00:00:15:00", RTC_OFFSET, RTC_ALM1_MODE1, ALL_OFF);
 
 // Wake UP
   USB.ON();
