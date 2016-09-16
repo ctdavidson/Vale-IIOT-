@@ -328,8 +328,8 @@ USB.println(frame.getFrameSize(),DEC);
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-    frame.addSensor(SENSOR_DATE, RTC.date, RTC.month, RTC.year);
-    frame.addSensor(SENSOR_TIME, RTC.hour, RTC.minute, RTC.second);
+//    frame.addSensor(SENSOR_DATE, RTC.date, RTC.month, RTC.year);
+//    frame.addSensor(SENSOR_TIME, RTC.hour, RTC.minute, RTC.second);
 //  frame.addSensor(SENSOR_ACC, ACC.getX(), ACC.getY(), ACC.getZ());
 //  frame.addSensor(SENSOR_BAT, PWR.getBatteryLevel()); 
 
