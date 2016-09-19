@@ -1,51 +1,56 @@
 // Code 9.6 Change  the nodeAddress and nodeID.
 //Alex & Tom
 // Change Log // Things you need to Change
-// 1. char nodeID[] = "SEPro03_Node26"; // change line ##
-// 2.
+// 1.2 char nodeID[] = "SEPro-Vit-Node26"; // Change to match you node name standard SE = Plug and sense type SEPro (Smart Environment Pro), Location and Node Number
+// 2.uint8_t meshlium_address = 2;
 // 3. 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Area #1 Set Global Variables %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-// library
+// 1.0 library
   #include <WaspSX1272.h>
   #include <WaspFrame.h>
   #include <WaspOPC_N2.h>
   #include <WaspSensorGas_Pro.h>
   #include <WaspAES.h>
 
-//not used
-  #define ALL_OFF_ALEX SENS_OFF | UART0_OFF | UART1_OFF | BAT_OFF | RTC_OFF
 
-// Each object will be used by each gas sensor
+// 1.1 
+//Each object will be used by each gas sensor
   Gas CO(SOCKET_A);
   Gas O2(SOCKET_B);
   Gas CO2(SOCKET_C);
   Gas NO2(SOCKET_F);
 
-// define the Waspmote ID 
-// CHANGING NODEID FOR A NEW DEVICE
 
+// 1.2 
+//CHANGING NODEID FOR A NEW DEVICE
 //////////////////////////////////////////
   char nodeID[] = "node26";
 //////////////////////////////////////////
 
+// 1.3 
 // Define the Meshlium address to send packets
 // The default Meshlium address is '1'
   uint8_t meshlium_address = 2;
 
-// Define private a 16-Byte key to encrypt message  
+// 1.4 
+//Define private a 16-Byte key to encrypt message  
 char password[] = "libeliumlibelium"; 
 
 
 ////////// IMPORTANT //////////////////////////
-// Select the node address value: from 2 to 255
+// 1.5 
+//Select the node address value: from 2 to 255 Each node must have a unique node number
 // CHANGING NODE ADDRESS FOR A NEW DEVICE
   uint8_t node_address = 26;
 
   
-  
 ///////////////////////////////////////////
-// Set all Global Variables here
+// 1.6
+//General Float and int commands
 ///////////////////////////////////////////  
   float conc_CO;		// Stores the concentration level of CO in ppm
   float conc_O2;		// Stores the concentration level of O2 in ppm
@@ -63,59 +68,76 @@ char password[] = "libeliumlibelium";
   }
 
 
-  void loop()
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%END initial %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Run Loop %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Area #2 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Set Lora Config %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+void loop()
 {
-// Init USB port
+// 2.0
+//Init USB port
     USB.ON();
     USB.println(F("node26"));
     USB.println(F("code v9.6"));
     USB.println(F("Semtech SX1272 module. TX in LoRa to MESHLIUM"));
 
-// Switch ON RTC
+//  2.1 Real Time Clock
+//Switch ON RTC
     RTC.ON();
 
+// 2.3 
 // Switch ON ACC
     ACC.ON();
 
-// set the Waspmote ID
+// 2.4
+//Set the Waspmote ID
     frame.setID(nodeID);  
 
     USB.println(F("----------------------------------------"));
     USB.println(F("Setting configuration:")); 
     USB.println(F("----------------------------------------"));
   
-// Init sx1272 module
+// 2.5
+//Init sx1272 module
     sx1272.ON();
 
-// Select frequency channel
+// 2.6
+//Select frequency channel
   e = sx1272.setChannel(CH_12_900);
     USB.print(F("Setting Channel CH_12_900.\t state ")); 
     USB.println(e);
 
-// Select implicit (off) or explicit (on) header mode
+// 2.7
+//Select implicit (off) or explicit (on) header mode
   e = sx1272.setHeaderON();
     USB.print(F("Setting Header ON.\t\t state "));  
     USB.println(e); 
 
-// Select mode (mode 1)
+// 2.7
+//Select mode (mode 1)
   e = sx1272.setMode(1);  
     USB.print(F("Setting Mode '1'.\t\t state "));
     USB.println(e);  
 
-// Select CRC on or off
+// 2.8
+//Select CRC on or off
   e = sx1272.setCRC_ON();
     USB.print(F("Setting CRC ON.\t\t\t state "));
     USB.println(e); 
 
+// 2.9
 // Select output power (Max, High or Low)
   e = sx1272.setPower('H');
     USB.print(F("Setting Power to 'H'.\t\t state ")); 
     USB.println(e); 
     
- // Select the maximum number of retries: from '0' to '5'
+ // 2.91
+ //Select the maximum number of retries: from '0' to '5'
   e = sx1272.setRetries(5);
   USB.print(F("Setting Retries to '5'.\t\t state "));
   USB.println(e);
@@ -128,11 +150,13 @@ char password[] = "libeliumlibelium";
   delay(1000); 
 
 ///////////////////////////////
-  // 2. Get channel RSSI
+  // 2.92
+  //2. Get channel RSSI
   ///////////////////////////////
   e = sx1272.getRSSI();
 
-  // check status
+  // 2.93
+  //check status
   if( e == 0 ) 
   {
     USB.print(F("Getting RSSI \t\t--> OK. "));
@@ -148,7 +172,8 @@ char password[] = "libeliumlibelium";
 
 
 ////////// IMPORTANT //////////////////////////
-// Select the node address value: from 2 to 255
+// 2.94
+//Select the node address value: from 2 to 255
 // CHANGING NODE ADDRESS FOR A NEW DEVICE 
   
   e = sx1272.setNodeAddress(node_address);
@@ -161,15 +186,22 @@ char password[] = "libeliumlibelium";
   delay(1000);
   
  
-// get Time from RTC
+// 2.95
+//get Time from RTC
   RTC.getTime();
+  
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Area #3 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Enter Sensor Options %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   
   
 ///////////////////////////////////////////
-// 1a. Turn on particle sensor
+// 3.0
+//Turn on particle sensor
 ///////////////////////////////////////////  
 
-// Power on the OPC_N2 sensor. 
+// 3.1
+//Power on the OPC_N2 sensor. 
 // If the gases PRO board is off, turn it on automatically.
   status = OPC_N2.ON();
   if (status == 1)
@@ -182,7 +214,8 @@ char password[] = "libeliumlibelium";
   }
 
 ///////////////////////////////////////////
-// 1b. Read the particle sensor
+// 3.2
+//Read the particle sensor
 ///////////////////////////////////////////  
 
   if (status == 1)
@@ -210,7 +243,8 @@ char password[] = "libeliumlibelium";
   }
 
 ///////////////////////////////////////////
-// 1c. Turn off the particle sensor
+//3.3
+// Turn off the particle sensor
 /////////////////////////////////////////// 
 // Power off the OPC_N2 sensor. If there aren't other sensors powered, 
 // turn off the board automatically
@@ -219,16 +253,16 @@ char password[] = "libeliumlibelium";
     delay(10000);
 
 ///////////////////////////////////////////
-// 2a. Turn on gas sensors
+// 3.4
+// Turn on gas sensors
 /////////////////////////////////////////// 
 
-// Power on the sensors. 
-// If the gases PRO board is off, turn it on automatically.
     CO.ON();
     O2.ON();
     CO2.ON();
     NO2.ON();
 
+// 3.5 
 // The sensor needs time to warm up and get a response from gas
 // To reduce the battery consumption, use deepSleep instead delay
 // After 2 minutes, Waspmote wakes up thanks to the RTC Alarm
@@ -236,14 +270,17 @@ char password[] = "libeliumlibelium";
     PWR.deepSleep("00:00:01:00", RTC_OFFSET, RTC_ALM1_MODE1, ALL_ON);
 
 ///////////////////////////////////////////
-// 2b. Read gas sensors
-///////////////////////////////////////////  
+// 3.6
+// Read gas sensors
 // Read the sensors and compensate with the temperature internally
+///////////////////////////////////////////  
+
     conc_CO = CO.getConc();
     conc_O2 = O2.getConc();
     conc_CO2 = CO2.getConc();
     conc_NO2 = NO2.getConc();
 
+// 3.7
 // Read enviromental variables
 // In this case, CO objet has been used.
 // O2, CO2 or NO2 objects could be used with the same result
@@ -251,6 +288,7 @@ char password[] = "libeliumlibelium";
     humidity = CO.getHumidity();
     pressure = CO.getPressure();
 
+// 3.8
 // And print the values via USB
     USB.println(F("***************************************"));
     USB.print(F("CO concentration: "));
@@ -274,8 +312,12 @@ char password[] = "libeliumlibelium";
     USB.print(F("Pressure: "));
     USB.print(pressure);
     USB.println(F(" Pa"));
-
+    
+// ////////////////////////////////
+// 3.9 Show Battery levels
 // Show the remaining battery level
+// ////////////////////////////////////
+
     USB.print(F("Battery Level: "));
     USB.print(PWR.getBatteryLevel(),DEC);
     USB.print(F(" %"));
@@ -287,26 +329,28 @@ char password[] = "libeliumlibelium";
   
 
 ///////////////////////////////////////////
-// 2c. Turn off the gas sensors
+// 3.91
+// Turn off the gas sensors
 /////////////////////////////////////////// 
 
+// 3.92
 // Power off the sensors sensor. If there aren't more gas sensors powered, 
-// turn off the board automatically
+
     CO.OFF();
     O2.OFF();
     CO2.OFF();
     NO2.OFF();
 
-///////////////////////////////////////////
-// 1. Create ASCII frame
-///////////////////////////////////////////  
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Area #4 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Create Frame %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-  USB.println(F("Create a new Frame:"));
+USB.println(F("Create a new Frame:"));
   
 
-/////////////////////////////////////////////
-// 6. set frame size via parameter given by the user
-/////////////////////////////////////////////
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+// 4.1 set user frame size via manual parameters (Binary)
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //frame.setFrameSize(220);
 //USB.print(F("\n frame size given by the user (220):"));
 //USB.println(frame.getFrameSize(),DEC);  
@@ -314,22 +358,24 @@ char password[] = "libeliumlibelium";
 
 
 //%%%%%%%%%%%%%%%%%%% Binary %%%%%%%%%%%%%%%%%%%%%%%%%%%
-// create new frame (MAX Frame)
+// 4.2 create new frame (MAX Frame) Binary
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 frame.createFrame(MAX_FRAME);  
 USB.println(frame.getFrameSize(),DEC);  
-// add frame fields
 
 
 //%%%%%%%% ASCII Frame %%%%%%%%%%%%%%%%%%%%
-  // Create new frame (ASCII)
- //frame.createFrame(ASCII);
- //USB.println(frame.getFrameSize(),DEC); 
+// 4.3 Create new create ASCII Frame
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//frame.createFrame(ASCII);
+//USB.println(frame.getFrameSize(),DEC); 
 
 
-//    frame.addSensor(SENSOR_DATE, RTC.date, RTC.month, RTC.year);
-//    frame.addSensor(SENSOR_TIME, RTC.hour, RTC.minute, RTC.second);
+// 4.4 Sensor Frames
+
+// Add Time and date Frames if needed
+//  frame.addSensor(SENSOR_DATE, RTC.date, RTC.month, RTC.year);
+//  frame.addSensor(SENSOR_TIME, RTC.hour, RTC.minute, RTC.second);
 //  frame.addSensor(SENSOR_ACC, ACC.getX(), ACC.getY(), ACC.getZ());
 //  frame.addSensor(SENSOR_BAT, PWR.getBatteryLevel()); 
 
@@ -360,7 +406,7 @@ USB.println(frame.getFrameSize(),DEC);
     frame.showFrame();
 
 ////////////////////////////////////////////////
-  // 2. Create Frame with Encrypted contents
+  // 4.5 Create Frame with Encrypted contents
   ////////////////////////////////////////////////  
   USB.println(F("2. Encrypting Frame"));   
 
@@ -379,7 +425,7 @@ USB.println(frame.getFrameSize(),DEC);
 
 
 ///////////////////////////////////////////
-// 2. Send packet
+// 4.6 Send packet
 ///////////////////////////////////////////  
   USB.println(F("----------------------------------------"));
   USB.println(F("Sending:")); 
@@ -403,9 +449,9 @@ e = sx1272.sendPacketTimeoutACKRetries ( meshlium_address, frame.buffer, frame.l
   USB.println();
   delay(2500);
       
-// Go to deepsleep 
-// After 1 hour, Waspmote wakes up thanks to the RTC Alarm
-// PWR.deepSleep("00:00:15:00", RTC_OFFSET, RTC_ALM1_MODE1, ALL_OFF);
+// 4.7 Go to deepsleep 
+// After X Time, Waspmote wakes up thanks to the RTC Alarm
+PWR.deepSleep("00:00:15:00", RTC_OFFSET, RTC_ALM1_MODE1, ALL_OFF);
 
 // Wake UP
   USB.ON();
