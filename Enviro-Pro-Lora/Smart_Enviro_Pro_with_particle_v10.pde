@@ -2,8 +2,9 @@
 //Alex & Tom
 // Change Log // Things you need to Change
 // 1.2 char nodeID[] = "SEPro-Vit-Node26"; // Change to match you node name standard SE = Plug and sense type SEPro (Smart Environment Pro), Location and Node Number
-// 2.uint8_t meshlium_address = 2;
-// 3. 
+// 1.3 uint8_t meshlium_address = 2; Change the Meshlium address to match your gateway number
+// 1.4 char password[] = "libeliumlibelium";  Edit your 16-Byte enctyption key to match your gateway key
+// 1.5 uint8_t node_address = 26; set your sensor node number. Must be unique number for each sensor on the network for the AP
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Area #1 Set Global Variables %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -82,8 +83,9 @@ void loop()
 // 2.0
 //Init USB port
     USB.ON();
-    USB.println(F("node26"));
-    USB.println(F("code v9.6"));
+    //USB.println(F("nodeID"));
+    printf("%s",nodeID);
+    USB.println(F("code v10"));
     USB.println(F("Semtech SX1272 module. TX in LoRa to MESHLIUM"));
 
 //  2.1 Real Time Clock
